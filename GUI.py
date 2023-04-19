@@ -1,6 +1,7 @@
 import tkinter as tk
 import TextAnalyzer
 import SignalProc
+import threading
 def forget_all():
   '''
   Hides all widgets, even if they are already hidden
@@ -166,7 +167,11 @@ def start():
   #Starting Button States
   start_button["state"]="disabled"
 def startGUI():
+  global root
   root = tk.Tk()
   start()
-  SignalProc.start_sdr()
+  sp = SignalProc.SignalProcessor()
+  #sp.sdr_start()
+  thread = threading.Thread(target=sp.sdr_start)
+  thread.start()
   root.mainloop()
