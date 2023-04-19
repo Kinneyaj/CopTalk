@@ -61,8 +61,11 @@ class SignalProcessor():
     # Record audio
     self.frames = []
     for i in range(0, int(self.RATE / self.CHUNK * self.RECORD_SECONDS)):
-      self.data = stream.read(self.CHUNK)
-      self.frames.append(self.data)
+      try:
+        self.data = stream.read(self.CHUNK)
+        self.frames.append(self.data)
+      except(OSError):
+        self.p.terminate()
 
     # Stop recording
     stream.stop_stream()
