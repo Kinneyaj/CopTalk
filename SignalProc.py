@@ -1,8 +1,6 @@
 import pyaudio
 import wave
 import speech_recognition as sr
-import json
-import datetime
 import threading
 import TextAnalyzer
 import GUI
@@ -127,9 +125,7 @@ class SignalProcessor():
         self.eventActive = False
         self.running = False
     else:
-      st = TextAnalyzer.rawText(
-        "Metro 9417 Alpha 417 Imperial detention 239 contest 865 Imperial Beach Boulevard deserve 53 copy will generate a walk-up response, Crash, accident"
-      )
+      st = TextAnalyzer.rawText(self.transcript)
       highlights, st = GUI.colorTostr(st)
       GUI.live_update(st)
       #write transcripts to file
@@ -141,16 +137,16 @@ class SignalProcessor():
         with open("transcript.txt", "a") as f:
           f.write(" " + self.transcript)
 
-  def sdr_start():
+  def sdr_start(self):
 
-    sp = SignalProcessor()
+    #sp = SignalProcessor()
 
-    sp.recordAudio()
+    self.recordAudio()
 
-    while sp.running == True:
+    while self.running == True:
 
-      thread1 = threading.Thread(target=sp.recordAudio)
-      thread2 = threading.Thread(target=sp.convertSpeechToText)
+      thread1 = threading.Thread(target=self.recordAudio)
+      thread2 = threading.Thread(target=self.convertSpeechToText)
 
       thread1.start()
       thread2.start()
@@ -158,4 +154,4 @@ class SignalProcessor():
       thread1.join()
       thread2.join()
 
-    sp.p.terminate()
+    self.p.terminate()
