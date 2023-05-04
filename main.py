@@ -1,2 +1,3 @@
 import GUI
-GUI.startGUI()
+g = GUI.GUI()
+g.startGUI()
