@@ -89,12 +89,17 @@ class GUI:
     Will update the screen with the given string in the parameters
     '''
     #if(updating):
+    post = self.colorTostr(post)
     self.count+=1
     self.incoming.append(post)
     print(post)
     self.updates_textBox["state"] = "normal"
     self.updates_textBox.insert(tk.END,post)    
     self.updates_textBox.insert(tk.END,"\n\n")
+    for i in range(len(self.highlights)):
+      start = str(self.row)+"."+str(self.highlights[i][0])
+      end = str(self.row)+"."+str(self.highlights[i][1])
+      self.updates_textBox.tag_add("red", start,end)
     self.updates_textBox["state"]="disabled"
   def post_update(self,post):  
     '''
@@ -136,7 +141,7 @@ class GUI:
       elif str[i] == "$":
         self.stop = i+1
         self.highlights.append((self.start,self.stop))
-    return (self.highlights), str.replace("*","-").replace("$","-")
+    return str.replace("*","-").replace("$","-")
   def start(self):
     '''
     Creates the window, initializes all variables to starting values, creates the widgets, places the widgets, starts the program loop
@@ -191,10 +196,7 @@ class GUI:
     #self.highlights,self.st = self.colorTostr(self.st)
     #self.row = (len(self.updates_textBox.get("1.0", "end-1c").split("\n")))  
     #self.live_update(self.st)
-    #for i in range(len(self.highlights)):
-    #  start = str(self.row)+"."+str(self.highlights[i][0])
-    #  end = str(self.row)+"."+str(self.highlights[i][1])
-    #  self.updates_textBox.tag_add("red", start,end)
+    
     #live_update()
     #Starting Button States
     self.start_button["state"]="disabled"
