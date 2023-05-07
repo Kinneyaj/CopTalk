@@ -47,12 +47,22 @@ class GUI:
       self.sp.p.terminate()
     except(AttributeError):
       pass
+    
     self.start_button["state"]="disabled"
     self.updating = False
     self.agreement_label.grid(row=0,column = 0, columnspan =2)
-    self.start_button.grid(row=2,column = 0,columnspan = 2)
+    self.start_button.grid(row=2,column = 0,)
+    self.stop_button.grid(row=2,column = 1)
     self.confirm_button.grid(row=1,column=1,)
     self.drop.grid(row=1,column = 0)
+  def exit(self):
+    try:
+      self.sp.running = False
+      self.sp.p.terminate()
+    except(AttributeError):
+      pass
+    self.root.mainloop()
+    exit(0)
     
   def live(self):
     '''
@@ -65,6 +75,7 @@ class GUI:
     self.stop_button.grid(row=2,column = 0)
     self.updates_textBox.grid(row=1,column = 0, columnspan = 2)
     self.posts_button.grid(row = 2, column =1 )
+    self.root.eval('tk::PlaceWindow . center')
     if(self.updating):
       pass
     else:
@@ -113,6 +124,7 @@ class GUI:
     self.posts_textBox.grid(row=1,column = 1,rowspan = 3)
     self.live_button.grid(row=4,column = 0)
     self.stop_button.grid(row=4,column = 2)
+    self.root.eval('tk::PlaceWindow . center')
     
   def colorTostr(self,str):
     self.highlights = []
@@ -130,17 +142,20 @@ class GUI:
     Creates the window, initializes all variables to starting values, creates the widgets, places the widgets, starts the program loop
     '''
     self.root.title("CopTalk")
+    self.root['bg']="black"
+    self.root.overrideredirect(1)
+    self.root.eval('tk::PlaceWindow . center')
     #Below is where all the widgets are created  
     self.count = 0
     #Updating Boolean
     updating = False
     #Test Text
-    self.incoming = ["Now Recording audio on computer..."]
+    self.incoming = ["Now Recording audio on computer...\n"]
     self.outgoing = []
     
     #Label Creation  
-    self.copTalk_label = tk.Label(self.root, text = "CopTalk")
-    self.agreement_label = tk.Label(self.root, text = "This application will record the audio from your device")
+    self.copTalk_label = tk.Label(self.root, text = "CopTalk",bg= "black", fg ="green")
+    self.agreement_label = tk.Label(self.root, bg= "black", fg ="green",text = "This application will record the audio from your device")
     #Dropdown options
     self.channels = ["Agree","Disagree"]
     
@@ -149,20 +164,20 @@ class GUI:
     self.dropdown_output.set("Agreement")
     
     #Dropdown Creation
-    self.drop = tk.OptionMenu( self.root , self.dropdown_output , *self.channels )
-    
+    self.drop = tk.OptionMenu( self.root , self.dropdown_output , *self.channels ,)
+    self.drop.config(bg= "black", fg ="green")
     #Button Creation
     self.start_button = tk.Button(self.root, text = "Start", bg = "green", command = self.live, fg = "white")
-    self.stop_button = tk.Button(self.root, text = "Exit", bg = "red",command = self.main_menu)
-    self.confirm_button = tk.Button(self.root, text = "Confirm", command = self.channel_selected)
-    self.posts_button = tk.Button(self.root, text = "Posts",bg = "light blue", command = self.posts)
+    self.stop_button = tk.Button(self.root, text = "Exit", bg = "red",fg = "white",command = self.exit)
+    self.confirm_button = tk.Button(self.root, text = "Confirm", command = self.channel_selected,bg= "black", fg ="green")
+    self.posts_button = tk.Button(self.root, text = "Posts",bg = "green",fg = "white" ,command = self.posts)
     self.crimes_button = tk.Button(self.root, text ="Crimes",bg = "red")
     self.emergency_button = tk.Button(self.root, text = "Emergency", bg = "yellow")
     self.warnings_button = tk.Button(self.root, text = "Warnings", bg = "orange")
-    self.live_button = tk.Button(self.root, text = "Live", bg = "light blue", command = self.live)
+    self.live_button = tk.Button(self.root, text = "Live", bg = "green",fg="white", command = self.live)
     #TextBox creation
-    self.updates_textBox = tk.Text(self.root)
-    self.posts_textBox = tk.Text(self.root)
+    self.updates_textBox = tk.Text(self.root,bg = "black",fg = "green")
+    self.posts_textBox = tk.Text(self.root, bg = "black",fg = "green")
     self.updates_textBox.insert(tk.END,self.incoming[0])
     self.updates_textBox["state"]="disabled"
     self.posts_textBox["state"]="disabled"
@@ -170,7 +185,7 @@ class GUI:
     st = "-"*st
     self.updates_textBox.insert(tk.END,("\n"+st+"\n"))
     #Starting Grid Placements
-    self.copTalk_label.grid(row= 0,column = 0, columnspan =2)
+    self.copTalk_label.grid(row= 0,column = 0, columnspan =2,)
     self.main_menu() #Places the main menu
     #self.st = TextAnalyzer.rawText("Metro 9417 Alpha 417 Imperial detention 239 contest 865 Imperial Beach Boulevard deserve 53 copy will generate a walk-up response, Crash, accident")
     #self.highlights,self.st = self.colorTostr(self.st)
