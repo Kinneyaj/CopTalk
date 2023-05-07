@@ -1,163 +1,196 @@
-import pyaudio
-import wave
-import speech_recognition as sr
-import threading
+import tkinter as tk
 import TextAnalyzer
-import GUI
-
-
-class SignalProcessor():
-
-  # Set parameters for recording
-  FORMAT = pyaudio.paInt16
-  CHANNELS = 2
-  RATE = 44100
-  CHUNK = 1024
-  RECORD_SECONDS = 30
-  detect_seconds = RECORD_SECONDS
-  event_seconds = 120
-  WAVE_OUTPUT_FILENAME = "output.wav"
-
-  eventActive = False
-  running = True
-  transcript = ""
-
-  # Create PyAudio object
-  p = pyaudio.PyAudio()
-
-  input_index = None
-  info = p.get_host_api_info_by_index(0)
-  num_devices = info.get('deviceCount')
-
+import SignalProc
+import threading
+class GUI:
   def __init__(self):
-
-    # Find the index of the Stereo Mix input
-    for i in range(self.num_devices):
-      #print(p.get_device_info_by_index(i))
-      if (self.p.get_device_info_by_host_api_device_index(
-          0, i).get('maxInputChannels')) > 0:
-        if "Stereo Mix" in self.p.get_device_info_by_host_api_device_index(
-            0, i).get('name'):
-          self.input_index = i
-          print(i)
-
-  def recordAudio(self):
-    #print("recording audio")
-
-    # Create stream object
-    stream = self.p.open(format=self.FORMAT,
-                         channels=self.CHANNELS,
-                         rate=self.RATE,
-                         input=True,
-                         input_device_index=self.input_index,
-                         frames_per_buffer=self.CHUNK)
-
-    if self.eventActive:
-      #record events in 60s clips
-      self.RECORD_SECONDS = self.event_seconds
+    print("Cop Talk Created")
+  def forget_all(self):
+    '''
+    Hides all widgets, even if they are already hidden
+    '''
+    self.start_button.grid_forget()
+    self.updates_textBox.grid_forget()
+    self.posts_button.grid_forget()
+    self.stop_button.grid_forget()
+    self.confirm_button.grid_forget()
+    self.warnings_button.grid_forget()
+    self.crimes_button.grid_forget()
+    self.emergency_button.grid_forget()
+    self.drop.grid_forget()
+    self.posts_textBox.grid_forget()
+    self.emergency_button.grid_forget()
+    self.crimes_button.grid_forget()
+    self.warnings_button.grid_forget()
+    self.live_button.grid_forget()
+    self.agreement_label.grid_forget()
+    
+  def channel_selected(self):
+    '''
+    Once a channel is selected this function will run
+    It will allow the start button to be pressed
+    '''
+    
+    if self.dropdown_output.get() == "Agree":
+      self.start_button["state"]="normal"
     else:
-      #detect speech in 10s clips
-      self.RECORD_SECONDS = self.detect_seconds
-
-    # Record audio
-    self.frames = []
-    for i in range(0, int(self.RATE / self.CHUNK * self.RECORD_SECONDS)):
-      try:
-        self.data = stream.read(self.CHUNK)
-        self.frames.append(self.data)
-      except(OSError):
-        self.p.terminate()
-
-    # Stop recording
-    stream.stop_stream()
-    stream.close()
-
-    self.writeAudio()
-
-  def detectEvent(self):
-    #print("detecting event")
-    self.recordAudio(self, self.detect_seconds)
-    self.writeAudio()
-    self.convertSpeechToText()
-    self.writeText()
-
-  def writeAudio(self):
-    #print("writing audio to file")
-
-    # Save the recorded audio to a WAV file
-    wf = wave.open(self.WAVE_OUTPUT_FILENAME, 'wb')
-    wf.setnchannels(self.CHANNELS)
-    wf.setsampwidth(self.p.get_sample_size(self.FORMAT))
-    wf.setframerate(self.RATE)
-    wf.writeframes(b''.join(self.frames))
-    wf.close()
-
-  def convertSpeechToText(self):
-    #print("converting speech to text")
-
-    #Pass the file through Speech-to-Text
-    r = sr.Recognizer()
-    with sr.AudioFile(self.WAVE_OUTPUT_FILENAME) as source:
-      r.adjust_for_ambient_noise(source)
-      audio = r.record(source)
-
-    # recognize speech using Google Speech Recognition
+      self.start_button["state"]="disabled"
+  def main_menu(self):
+    '''
+    Resets to home screen:
+    Hides all widgets and places the Start and Channel button
+    Stops live updating
+    '''  
+    self.forget_all()
     try:
-      self.transcript = r.recognize_google(audio, language='en-US')
-      print(self.transcript)
-      TextAnalyzer.rawText(self.transcript)
-    except sr.UnknownValueError:
-      self.transcript = ""
-    except sr.RequestError as e:
-      print(
-        "Could not request results from Google Speech Recognition service; {0}"
-        .format(e))
-      self.transcript = ""
-    except Exception as e:
-      print("Unexpected Error")
-
-    self.writeText()
-
-  def writeText(self):
-    #print("writing text to file")
-
-    if self.transcript == "":
-      print("no speech detected")
-      self.gui.live_update("No speech detected...Attempting to listen")
-      #GUI.live_update("No speech detected...Attempting to listen")
-      if self.eventActive == True:
-        #print("event complete")
-        #end of event
-        self.eventActive = False
-        self.running = False
+      self.sp.running = False
+      self.sp.p.terminate()
+    except(AttributeError):
+      pass
+    self.start_button["state"]="disabled"
+    self.updating = False
+    self.agreement_label.grid(row=0,column = 0, columnspan =2)
+    self.start_button.grid(row=2,column = 0,columnspan = 2)
+    self.confirm_button.grid(row=1,column=1,)
+    self.drop.grid(row=1,column = 0)
+    
+  def live(self):
+    '''
+    When start or live button is pressed:
+    1)forget all buttons
+    2)Display text box with live_update
+    3)Display posts button
+    '''
+    self.forget_all()
+    self.stop_button.grid(row=2,column = 0)
+    self.updates_textBox.grid(row=1,column = 0, columnspan = 2)
+    self.posts_button.grid(row = 2, column =1 )
+    if(self.updating):
+      pass
     else:
-      st = TextAnalyzer.rawText(self.transcript)
-      highlights, st = self.gui.colorTostr(st)
-      self.gui.live_update(st)
-      #write transcripts to file
-      if self.eventActive == False:
-        self.eventActive = True
-        with open("transcript.txt", "w") as f:
-          f.write(self.transcript)
-      else:
-        with open("transcript.txt", "a") as f:
-          f.write(" " + self.transcript)
+      self.updating = True
+      #In future don't call this
 
-  def sdr_start(self,g):
-    self.gui = g
-    #sp = SignalProcessor()
 
-    self.recordAudio()
-
-    while self.running == True:
-
-      thread1 = threading.Thread(target=self.recordAudio)
-      thread2 = threading.Thread(target=self.convertSpeechToText)
-
-      thread1.start()
-      thread2.start()
-
-      thread1.join()
-      thread2.join()
-
-    self.p.terminate()
+  def live_update(self,post):  
+    '''
+    accepts: string
+    Will update the screen with the given string in the parameters
+    '''
+    #if(updating):
+    self.count+=1
+    self.incoming.append(post)
+    print(post)
+    self.updates_textBox["state"] = "normal"
+    self.updates_textBox.insert(tk.END,post)    
+    self.updates_textBox.insert(tk.END,"\n\n")
+    self.updates_textBox["state"]="disabled"
+  def post_update(self,post):  
+    '''
+    accepts: string
+    Will update the screen with the given string in the parameters
+    '''
+    #if(updating):
+    self.outgoing.append(post)
+    print(post)
+    self.posts_textBox["state"] = "normal"
+    self.posts_textBox.insert(tk.END,post)    
+    self.posts_textBox.insert(tk.END,"\n\n")
+    self.posts_textBox["state"]="disabled"
+      #root.after(4000,live_update)
+  def posts(self):
+    '''
+    When Posts button is pressed:
+    1)forget all buttons
+    2)Display category buttons
+    3)Display outgoing posts
+    4)Display live button and move stop button
+    '''
+    self.forget_all()
+    self.crimes_button.grid(row = 1, column = 0)
+    self.emergency_button.grid(row = 2, column = 0)
+    self.warnings_button.grid(row = 3, column = 0)
+    self.posts_textBox.grid(row=1,column = 1,rowspan = 3)
+    self.live_button.grid(row=4,column = 0)
+    self.stop_button.grid(row=4,column = 2)
+    
+  def colorTostr(self,str):
+    self.highlights = []
+    self.stop = 0
+    self.start = 0
+    for i in range(len(str)):
+      if str[i] == "*":      
+        self.start = i
+      elif str[i] == "$":
+        self.stop = i+1
+        self.highlights.append((self.start,self.stop))
+    return (self.highlights), str.replace("*","-").replace("$","-")
+  def start(self):
+    '''
+    Creates the window, initializes all variables to starting values, creates the widgets, places the widgets, starts the program loop
+    '''
+    self.root.title("CopTalk")
+    #Below is where all the widgets are created  
+    self.count = 0
+    #Updating Boolean
+    updating = False
+    #Test Text
+    self.incoming = ["Now Recording audio on computer..."]
+    self.outgoing = []
+    
+    #Label Creation  
+    self.copTalk_label = tk.Label(self.root, text = "CopTalk")
+    self.agreement_label = tk.Label(self.root, text = "This application will record the audio from your device")
+    #Dropdown options
+    self.channels = ["Agree","Disagree"]
+    
+    #DropDown Variable
+    self.dropdown_output = tk.StringVar()
+    self.dropdown_output.set("Agreement")
+    
+    #Dropdown Creation
+    self.drop = tk.OptionMenu( self.root , self.dropdown_output , *self.channels )
+    
+    #Button Creation
+    self.start_button = tk.Button(self.root, text = "Start", bg = "green", command = self.live, fg = "white")
+    self.stop_button = tk.Button(self.root, text = "Exit", bg = "red",command = self.main_menu)
+    self.confirm_button = tk.Button(self.root, text = "Confirm", command = self.channel_selected)
+    self.posts_button = tk.Button(self.root, text = "Posts",bg = "light blue", command = self.posts)
+    self.crimes_button = tk.Button(self.root, text ="Crimes",bg = "red")
+    self.emergency_button = tk.Button(self.root, text = "Emergency", bg = "yellow")
+    self.warnings_button = tk.Button(self.root, text = "Warnings", bg = "orange")
+    self.live_button = tk.Button(self.root, text = "Live", bg = "light blue", command = self.live)
+    #TextBox creation
+    self.updates_textBox = tk.Text(self.root)
+    self.posts_textBox = tk.Text(self.root)
+    self.updates_textBox.insert(tk.END,self.incoming[0])
+    self.updates_textBox["state"]="disabled"
+    self.posts_textBox["state"]="disabled"
+    st = len(self.incoming[0])
+    st = "-"*st
+    self.updates_textBox.insert(tk.END,("\n"+st+"\n"))
+    #Starting Grid Placements
+    self.copTalk_label.grid(row= 0,column = 0, columnspan =2)
+    self.main_menu() #Places the main menu
+    #self.st = TextAnalyzer.rawText("Metro 9417 Alpha 417 Imperial detention 239 contest 865 Imperial Beach Boulevard deserve 53 copy will generate a walk-up response, Crash, accident")
+    #self.highlights,self.st = self.colorTostr(self.st)
+    #self.row = (len(self.updates_textBox.get("1.0", "end-1c").split("\n")))  
+    #self.live_update(self.st)
+    #for i in range(len(self.highlights)):
+    #  start = str(self.row)+"."+str(self.highlights[i][0])
+    #  end = str(self.row)+"."+str(self.highlights[i][1])
+    #  self.updates_textBox.tag_add("red", start,end)
+    #live_update()
+    #Starting Button States
+    self.start_button["state"]="disabled"
+    self.sp = SignalProc.SignalProcessor()
+    #sp.sdr_start()
+    self.thread = threading.Thread(target= lambda : self.sp.sdr_start(self))
+    self.thread.start()
+  def startGUI(self):
+    
+    self.root = tk.Tk()
+    self.start()
+    
+    self.root.mainloop()
+    exit(0)
