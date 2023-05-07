@@ -7,6 +7,7 @@ import GUI
 
 
 class SignalProcessor():
+
   # Set parameters for recording
   FORMAT = pyaudio.paInt16
   CHANNELS = 2
@@ -122,6 +123,8 @@ class SignalProcessor():
 
     if self.transcript == "":
       print("no speech detected")
+      self.gui.live_update("No speech detected...Attempting to listen")
+      #GUI.live_update("No speech detected...Attempting to listen")
       if self.eventActive == True:
         #print("event complete")
         #end of event
@@ -129,8 +132,8 @@ class SignalProcessor():
         self.running = False
     else:
       st = TextAnalyzer.rawText(self.transcript)
-      highlights, st = GUI.colorTostr(st)
-      GUI.live_update(st)
+      highlights, st = self.gui.colorTostr(st)
+      self.gui.live_update(st)
       #write transcripts to file
       if self.eventActive == False:
         self.eventActive = True
@@ -140,8 +143,8 @@ class SignalProcessor():
         with open("transcript.txt", "a") as f:
           f.write(" " + self.transcript)
 
-  def sdr_start(self):
-
+  def sdr_start(self,g):
+    self.gui = g
     #sp = SignalProcessor()
 
     self.recordAudio()
