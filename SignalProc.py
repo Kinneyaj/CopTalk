@@ -122,7 +122,7 @@ class SignalProcessor():
     #print("writing text to file")
 
     if self.transcript == "":
-      print("no speech detected")
+      #print("no speech detected")
       self.gui.live_update("No speech detected...Attempting to listen")
       #GUI.live_update("No speech detected...Attempting to listen")
       if self.eventActive == True:
@@ -132,7 +132,6 @@ class SignalProcessor():
         self.running = False
     else:
       st = TextAnalyzer.rawText(self.transcript)
-      highlights, st = self.gui.colorTostr(st)
       self.gui.live_update(st)
       api.twitterPost(st)
       #write transcripts to file
