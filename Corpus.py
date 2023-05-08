@@ -5,7 +5,7 @@ import nltk
 import TextHighlighter
 
 
-def corpusMatch(keyWord, rawText):
+def corpusMatch(keyWord, rawText,gui):
 
     with open('corpus.json','r') as corpus:
         corpus_dict = json.load(corpus)
@@ -23,8 +23,8 @@ def corpusMatch(keyWord, rawText):
             wordsWithContext.append(element)
             keywords.append(keyWord[i])
     #newString = " ".join(analyzedText)
-    TemplateBuilder.filledTemplate(wordsWithContext, rawText)
-    return TextHighlighter.highlightedKeywords(keywords, rawText)
+    TemplateBuilder.filledTemplate(wordsWithContext, rawText,gui)
+    return TextHighlighter.highlightedKeywords(keywords, rawText,gui)
 '''
     tags = nltk.pos_tag(keyWord)
     for tag in tags:
