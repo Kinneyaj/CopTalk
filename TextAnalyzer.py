@@ -6,7 +6,7 @@ from nltk.corpus import wordnet
 
 stop_words = set(stopwords.words('english'))
 
-def rawText(file):
+def rawText(file,gui):
 
     processed = []
     file = file.lower()
@@ -33,7 +33,7 @@ def rawText(file):
                 tokens.append(tags[0])
 
     #print(file)
-    return Corpus.corpusMatch(tokens, file)
+    return Corpus.corpusMatch(tokens, file,gui)
     #TextHighlighter.highlightedKeywords(tokens, refinedList)
 '''
 def providedKeywordContext(keyWords):
