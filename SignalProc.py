@@ -133,7 +133,7 @@ class SignalProcessor():
     else:
       st = TextAnalyzer.rawText(self.transcript)
       self.gui.live_update(st)
-      api.twitterPost(st)
+      #api.twitterPost(st)
       #write transcripts to file
       if self.eventActive == False:
         self.eventActive = True
