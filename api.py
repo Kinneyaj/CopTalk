@@ -19,9 +19,9 @@ def twitterPost(textTwitter):
   
 def postTweet(passedString,bearer_token,API_key, API_secret,access_token, access_token_secret):
   textTwitter = passedString
-
+  
   client = tweepy.Client(bearer_token,API_key, API_secret,access_token, access_token_secret)
-
+  
   auth = tweepy.OAuth1UserHandler(bearer_token,API_key, API_secret,access_token, access_token_secret)
 
   response = client.create_tweet(text = textTwitter)
