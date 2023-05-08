@@ -1,4 +1,4 @@
-#import API
+import api
 
 '''
 Template 1: Accident Alert
@@ -15,20 +15,24 @@ Attention drivers: [Rain/Snow/Wind/Storm] is causing poor driving conditions on 
 '''
 
 
-def filledTemplate(keyWords, rawText):
-
-    road = "I-15"
-    alertType = "Accident"
-    PoliceCodeTranslator = "Minor/Moderate/Extreme Police activity"
-
+def filledTemplate(keyWords, rawText, streetName):
+    #alertType = "Accident"
+    '''
     for word in keyWords:
         if alertType == "Accident":
-            template = "Attention drivers: There has been an accident on "+road+". Please use alternate routes if possible. Emergency services are on the scene."
+            template = "Attention drivers: There has been an accident on "+streetName+". Please use alternate routes if possible. Emergency services are on the scene."
         elif alertType == "Road Closure":
-            template = "Attention drivers: "+road+" is closed due to "+PoliceCodeTranslator+". Please use alternate routes. Expect delays."
+            template = "Attention drivers: "+streetName+" is closed due to "+PoliceCodeTranslator+". Please use alternate routes. Expect delays."
         elif alertType == 'Weather Alert':
-            template = "Attention drivers: Heavy traffic is reported on "+road+". Please expect delays and plan your route accordingly."
-
+            template = "Attention drivers: Heavy traffic is reported on "+streetName+". Please expect delays and plan your route accordingly."
+    '''
+    for x in keyWords:
+        if x[1] == "closure" or x[1] == "accident":
+            template = "Attention drivers: There has been an accident on " + streetName + ". Please use alternate routes if possible. Emergency services are on the scene."
+            print(template)
+            api.twitterPost(template)
+            break
+    return
     #print(keyWords)
 
     
